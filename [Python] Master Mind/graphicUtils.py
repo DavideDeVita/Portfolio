@@ -48,14 +48,23 @@ color={
 }
 selectableColors = list(color.keys())[4:]
 
+lastClickables = []
 
-def drawMastermindBoard(window, *, previousGuesses, currentGuess, selected):
-    window.clear()
+def drawMastermindBoard(window, *, previousGuesses, currentGuess, selected, renderLeft=True, renderGuess=True, renderAll=True):
+    if renderAll:
+        window.clear()
     w, h = window.getWidth(), window.getHeight()
-    drawLine( window, start=(w/2, 0), end=(w/2, h), color=color['white'] )
+    if renderAll:
+        drawLine( window, start=(w/2, 0), end=(w/2, h), color=color['white'] )
 
-    drawLeftSide(window, previousGuesses, w/2, h)
-    return drawRightSide(window, currentGuess, selected, w/2, h)
+    if renderLeft or renderAll:
+        drawLeftSide(window, previousGuesses, w/2, h)
+    if renderGuess or renderAll:
+        clickables = drawRightSide(window, currentGuess, selected, w/2, h, renderAll)
+        if renderAll:
+            global lastClickables
+            lastClickables=clickables
+    return lastClickables
 
 def drawLeftSide(window, previousGuesses, halfWidth, h):
     w=halfWidth
@@ -120,7 +129,7 @@ def drawLeftSide(window, previousGuesses, halfWidth, h):
 
         row-=1
 
-def drawRightSide(window, currentGuess, selected, halfWidth, h):
+def drawRightSide(window, currentGuess, selected, halfWidth, h, renderClickables):
     clickables = []
     w=halfWidth
     #current guess
@@ -138,24 +147,26 @@ def drawRightSide(window, currentGuess, selected, halfWidth, h):
         drawCircle(window, center=(stripe.left + cX_offset*i, cY), color=color_i, radius=radius )
 
         circle = Rect(stripe.left + cX_offset * i - radius, cY - radius, 2 * radius, 2 * radius)
-        clickables.append({"rect": circle, "action": "select", "select": i})
+        if renderClickables:     #Unnecessary if not resized
+            clickables.append({"rect": circle, "action": "select", "select": i})
 
-    #guess button
-    button = Rect(w + w*BUTTON_WIDTH_RATIO/2, h - BUTTON_HEIGHT_RATIO*h - BLACK_OFFSET*h, w*BUTTON_WIDTH_RATIO, BUTTON_HEIGHT_RATIO*h)
-    drawRect(window, rect=button, color=color['white'])
-    window.write("button", "Guess !", pixX=button.left + button.width*0.3, pixY=button.top + button.height*0.25, color=color['black'])
-    clickables.append({"rect":button, "action":"guess"})
+    if renderClickables:  # Unnecessary if not resized
+        #guess button
+        button = Rect(w + w*BUTTON_WIDTH_RATIO/2, h - BUTTON_HEIGHT_RATIO*h - BLACK_OFFSET*h, w*BUTTON_WIDTH_RATIO, BUTTON_HEIGHT_RATIO*h)
+        drawRect(window, rect=button, color=color['white'])
+        window.write("button", "Guess !", pixX=button.left + button.width*0.3, pixY=button.top + button.height*0.25, color=color['black'])
+        clickables.append({"rect":button, "action":"guess"})
 
-    #color possibilities
-    left=w + BLACK_OFFSET*w; right = 2*w - BLACK_OFFSET*w
-    top = stripe.bottom+ BLACK_OFFSET*h*2; bottom = button.top - BLACK_OFFSET*h*2
-    boxW, boxH = (right-left)/3, (bottom-top)/3
-    from random import choice
-    for r in range(3):
-        for c in range(3):
-            box = Rect(left + c*boxW, top + r*boxH, boxW, boxH)
-            drawRect(window, rect=box, color=color[ selectableColors[r*3 + c] ])
-            clickables.append({"rect":box, "action":"change color", "color":selectableColors[r*3 + c]})
+        #color possibilities
+        left=w + BLACK_OFFSET*w; right = 2*w - BLACK_OFFSET*w
+        top = stripe.bottom+ BLACK_OFFSET*h*2; bottom = button.top - BLACK_OFFSET*h*2
+        boxW, boxH = (right-left)/3, (bottom-top)/3
+        from random import choice
+        for r in range(3):
+            for c in range(3):
+                box = Rect(left + c*boxW, top + r*boxH, boxW, boxH)
+                drawRect(window, rect=box, color=color[ selectableColors[r*3 + c] ])
+                clickables.append({"rect":box, "action":"change color", "color":selectableColors[r*3 + c]})
 
     return clickables
 

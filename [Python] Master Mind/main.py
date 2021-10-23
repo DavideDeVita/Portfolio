@@ -5,7 +5,7 @@ import mastermindSequence as mmSeq
 
 #Checks all the event that have occurred since the last loop
 def evtCheck():
-    global running
+    global running, renderAll
     for evt in pygame.event.get():
         if evt.type == pygame.MOUSEBUTTONUP:
             clicked = [c for c in clickables if c['rect'].collidepoint(pygame.mouse.get_pos())]
@@ -21,11 +21,12 @@ def evtCheck():
         elif evt.type == pygame.VIDEORESIZE:
             print ("window resized", evt.w, evt.h)
             window.resized(evt.w, evt.h)
+            renderAll=True
         elif evt.type == pygame.QUIT:
             running = False
 
 def guess():
-    global currentGuess, selected, gameWon, gameLost
+    global currentGuess, selected, gameWon, gameLost, renderLeft, renderGuess
     if None not in currentGuess:
         currentGuess = mmSeq.checkGuess(secretSequence, currentGuess)
         previousGuesses.append(currentGuess)
@@ -36,15 +37,19 @@ def guess():
 
         currentGuess =[None for i in range(4)]
         selected=0
+        renderLeft=True
+        renderGuess=True
 
 def select(index):
-    global selected
+    global selected,renderGuess
     selected=index
+    renderGuess=True
 
 def changeColor(color):
-    global currentGuess, selected
+    global currentGuess, selected, renderGuess
     if 0<selected<5:
         currentGuess = currentGuess[:selected-1]+[color]+currentGuess[selected:]
+        renderGuess=True
 
 pygame.init()
 gUt.initFont()
@@ -56,21 +61,26 @@ previousGuesses = []
 currentGuess = [None for i in range(4)]
 selected = 0
 gameWon = gameLost = False
+renderLeft,renderGuess, renderAll = True, True, True
 
 running = True
 while running:
     evtCheck()
     #Redraw
-    clickables = gUt.drawMastermindBoard(window, previousGuesses=previousGuesses, currentGuess=currentGuess, selected=selected)
+    #print("left", renderLeft, "guess", renderGuess, "all", renderAll)
+    if renderLeft or renderGuess or renderAll:
+        clickables = gUt.drawMastermindBoard(window, previousGuesses=previousGuesses, currentGuess=currentGuess,
+                                 selected=selected, renderLeft=renderLeft, renderGuess=renderGuess, renderAll=renderAll)
+        renderLeft, renderGuess, renderAll = False, False, False
 
     if gameWon:
         gUt.gameWon(window)
     elif gameLost:
         gUt.gameLost(window, secretSequence)
-        currentGuess = secretSequence
+        #currentGuess = secretSequence
 
     gUt.updateView()
 
     if gameWon or gameLost:
         running=False
-        pygame.time.wait(1500)
+        pygame.time.wait(6090)
