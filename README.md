@@ -28,6 +28,10 @@ Here follows a list of the projects you could fine here, along with a brief intr
   A face detection and face recognition computer vision system based on the _eigenfaces_ strategy.
 
  
+* \[Python\] **Space Invaders**
+  An old stuyle Space Invaders game I made to practice Python and learn about the _pygame_ library.
+
+ 
 * \[C++\] **TripleX game**
   A simple game I coded to practice C++ for the first time.
   Given how basic it was, I had some fun creating various level generators based on probability distribution!
