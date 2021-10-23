@@ -29,7 +29,11 @@ Here follows a list of the projects you could fine here, along with a brief intr
 
  
 * \[Python\] **Space Invaders**
-  An old style Space Invaders game I made to practice Python and learn about the _pygame_ library.
+  An old style **Space Invaders** game I made to practice Python and learn about the _pygame_ library.
+
+ 
+* \[Python\] **Master Mind**
+  A digital version of the good and old **Master Mind** game I made to practice with the _pygame_ library.
 
  
 * \[C++\] **TripleX game**
